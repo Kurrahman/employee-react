@@ -21,6 +21,10 @@ function App() {
       reader.onload = event => {
         setEmployeeFile(event.target.result)
         setFileLoaded(true)
+        setSearchQuery('')
+        setSubmitSearch(false)
+        setErrorMessage()
+        setErrorFound()
       }
       reader.readAsText(file)
     }
