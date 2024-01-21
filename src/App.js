@@ -8,7 +8,9 @@ function App() {
   const [employeeMap, setEmployeeMap] = useState()
   const [employeeSearchMap, setEmployeeSearchMap] = useState()
   const [errorFound, setErrorFound] = useState()
+  const [errorMessage, setErrorMessage] = useState()
   const [searchQuery, setSearchQuery] = useState('')
+  const [submitSearch, setSubmitSearch] = useState(false)
 
   function handleSelectFile(event) {
     if (event.target.files) {
@@ -27,8 +29,9 @@ function App() {
   useEffect(() => {
     if (employeeFile) {
       var [status, tmpEmployeeMap] = loadEmployeeFromJson(employeeFile)
-      if (status === 'failed') {
+      if (status !== 'success') {
         setErrorFound(true)
+        setErrorMessage(status)
       } else {
         setErrorFound(false)
         var tmpSearchMap = new Map()
@@ -46,16 +49,22 @@ function App() {
       <header className="mb-3 text-xl font-semibold">
         Employee Search
       </header>
-      <input
-        className="
-          rounded-full px-3 mb-3 
-        bg-green-50
-          border-2 border-green-700 
-          focus:outline-none focus:ring focus:ring-green-300
-          placeholder:italic"
-        placeholder="Employee Name"
-        onChange={(e) => { setSearchQuery(e.target.value.toLowerCase()) }}
-      />
+      <form onSubmit={(e) => {
+        e.preventDefault()
+        setSubmitSearch(true)
+      }}>
+        <input
+          className="
+            rounded-full px-3 mb-3 
+          bg-green-50
+            border-2 border-green-700 
+            focus:outline-none focus:ring focus:ring-green-300
+            placeholder:italic"
+          placeholder="Employee Name"
+          onChange={(e) => { setSearchQuery(e.target.value.toLowerCase()); setSubmitSearch(false) }}
+        />
+        <button type="submit"/>
+      </form>
       {/* error result */}
       {errorFound &&
         <div className="text-center text-red-500">
@@ -63,7 +72,7 @@ function App() {
             {`Unable to process employee hierarchy`}
           </p>
           <p>
-            {`The following employee(s) does not have any hierarchy`}
+            {errorMessage}
           </p>
           {Array.from(employeeMap.values()).map((employee) => (
             <p className="text-lg font-semibold">
@@ -72,10 +81,18 @@ function App() {
           ))}
         </div>
       }
+      {!errorFound && fileLoaded && 
+        <div className="text-center text-green-500">
+          <p>
+            {'Employee file successfully loaded'}
+          </p>
+        </div>
+      }
       {/* found result */}
       {employeeSearchMap && (searchQuery !== '') &&
         <div>
-          {employeeSearchMap.get(searchQuery) &&
+          {employeeSearchMap.get(searchQuery) 
+            ?
             <div>
               <p>
                 {`Found : ${employeeSearchMap.get(searchQuery)?.name}`}
@@ -86,6 +103,14 @@ function App() {
               <p>
                 {`Total report(s) : ${employeeSearchMap.get(searchQuery)?.getTotalReport()}`}
               </p>
+            </div>
+            :
+            <div>
+              { submitSearch &&
+                <p>
+                  {`Employee not found`}
+                </p>
+              }
             </div>
           }
         </div>

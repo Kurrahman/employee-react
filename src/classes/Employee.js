@@ -54,4 +54,14 @@ export default class Employee {
   isValid() {
     return (this.manager || this.report)
   }
+
+  checkCycle(length){
+    if (length < 0){
+      return true
+    }
+    if (!this.manager){
+      return false
+    }
+    return false || this.manager.checkCycle(length - 1)
+  }
 }
