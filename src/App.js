@@ -10,8 +10,8 @@ function App() {
   const [errorFound, setErrorFound] = useState()
   const [searchQuery, setSearchQuery] = useState('')
 
-  function handleSelectFile(event){
-    if (event.target.files){
+  function handleSelectFile(event) {
+    if (event.target.files) {
       var file = event.target.files[0]
       var reader = new FileReader()
       var tmpDir = event.target.value.split('\\')
@@ -25,9 +25,9 @@ function App() {
   }
 
   useEffect(() => {
-    if (employeeFile){
+    if (employeeFile) {
       var [status, tmpEmployeeMap] = loadEmployeeFromJson(employeeFile)
-      if (status === 'failed'){
+      if (status === 'failed') {
         setErrorFound(true)
       } else {
         setErrorFound(false)
@@ -54,10 +54,10 @@ function App() {
           focus:outline-none focus:ring focus:ring-green-300
           placeholder:italic"
         placeholder="Employee Name"
-        onChange={(e) => {setSearchQuery(e.target.value.toLowerCase())}}
+        onChange={(e) => { setSearchQuery(e.target.value.toLowerCase()) }}
       />
       {/* error result */}
-      { errorFound &&
+      {errorFound &&
         <div className="text-center text-red-500">
           <p>
             {`Unable to process employee hierarchy`}
@@ -65,29 +65,29 @@ function App() {
           <p>
             {`The following employee(s) does not have any hierarchy`}
           </p>
-          { Array.from(employeeMap.values()).map((employee) => (
-              <p className="text-lg font-semibold">
-                {employee.name}
-              </p>
-            ))}
+          {Array.from(employeeMap.values()).map((employee) => (
+            <p className="text-lg font-semibold">
+              {employee.name}
+            </p>
+          ))}
         </div>
       }
       {/* found result */}
-      { employeeSearchMap && (searchQuery !== '') &&
+      {employeeSearchMap && (searchQuery !== '') &&
         <div>
-          { employeeSearchMap.get(searchQuery) &&
-              <div>
-                <p>
-                  {`Found : ${employeeSearchMap.get(searchQuery)?.name}`}
-                </p>
-                <p>
-                  { `Managed by : ${employeeSearchMap.get(searchQuery)?.getAllManager()}` }
-                </p>
-                <p>
-                  { `Total report(s) : ${employeeSearchMap.get(searchQuery)?.getTotalReport()}` }
-                </p>
-              </div>
-            }
+          {employeeSearchMap.get(searchQuery) &&
+            <div>
+              <p>
+                {`Found : ${employeeSearchMap.get(searchQuery)?.name}`}
+              </p>
+              <p>
+                {`Managed by : ${employeeSearchMap.get(searchQuery)?.getAllManager()}`}
+              </p>
+              <p>
+                {`Total report(s) : ${employeeSearchMap.get(searchQuery)?.getTotalReport()}`}
+              </p>
+            </div>
+          }
         </div>
       }
       <label className="

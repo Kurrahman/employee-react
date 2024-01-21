@@ -4,28 +4,28 @@ export default class Employee {
   manager
   report
 
-  constructor(id, name){
+  constructor(id, name) {
     this.id = id
     this.name = name.charAt(0).toUpperCase() + name.slice(1)
     this.manager = null
     this.report = null
   }
 
-  setManager(manager){
+  setManager(manager) {
     this.manager = manager
   }
 
-  addReport(employee){
-    if (!this.report){
+  addReport(employee) {
+    if (!this.report) {
       this.report = [employee]
     } else {
       this.report.push(employee)
     }
   }
 
-  getAllManager(){
+  getAllManager() {
     var out = ''
-    if (this.manager){
+    if (this.manager) {
       out = `${this.manager.recurseManager()}`
     } else {
       out = '-'
@@ -33,17 +33,17 @@ export default class Employee {
     return out
   }
 
-  recurseManager(){
+  recurseManager() {
     var out = this.name
-    if (this.manager){
+    if (this.manager) {
       out += ' -> ' + this.manager.recurseManager()
     }
     return out
   }
 
-  getTotalReport(){
+  getTotalReport() {
     var out = 0
-    if (this.report){
+    if (this.report) {
       this.report.forEach(rep => {
         out += 1 + rep.getTotalReport()
       });
@@ -51,7 +51,7 @@ export default class Employee {
     return out
   }
 
-  isValid(){
+  isValid() {
     return (this.manager || this.report)
   }
 }

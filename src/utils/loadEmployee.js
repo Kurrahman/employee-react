@@ -1,6 +1,6 @@
 import Employee from "../classes/Employee"
 
-export function loadEmployeeFromJson(str){
+export function loadEmployeeFromJson(str) {
   var employees = JSON.parse(str)
   var out = new Map()
 
@@ -12,7 +12,7 @@ export function loadEmployeeFromJson(str){
   // set managers and reports
   employees.forEach(employee => {
     var tmp = out.get(employee.id)
-    if (employee.managerId){
+    if (employee.managerId) {
       var manager = out.get(employee.managerId)
       tmp.setManager(manager)
       manager.addReport(tmp)
@@ -24,7 +24,7 @@ export function loadEmployeeFromJson(str){
   var errOut = new Map()
   employees.forEach(employee => {
     var tmp = out.get(employee.id)
-    if (!tmp.isValid()){
+    if (!tmp.isValid()) {
       errOut.set(employee.id, tmp)
       flag = true
     }
