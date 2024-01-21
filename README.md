@@ -4,11 +4,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Run this project
 
-Developed using Node v18.17.1
+Developed using Node v18.17.1<br>
 In the project directory, run:
-
-### `npm install`
-### `npm start`
+```
+  npm install
+  npm start
+```
 
 ## Available Scripts
 
