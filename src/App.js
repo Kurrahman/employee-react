@@ -1,136 +1,124 @@
-import { useEffect, useState } from "react";
-import { loadEmployeeFromJson } from "./utils/loadEmployee";
+import { useState } from "react";
+import SearchBar from "./components/SearchBar";
+import FileInput from "./components/FileInput";
+import { useEmployee } from "./hooks/useEmployee";
 
 function App() {
   const [fileLoaded, setFileLoaded] = useState(false)
-  const [fileName, setFileName] = useState('')
   const [employeeFile, setEmployeeFile] = useState()
-  const [employeeMap, setEmployeeMap] = useState()
-  const [employeeSearchMap, setEmployeeSearchMap] = useState()
-  const [errorFound, setErrorFound] = useState()
-  const [errorMessage, setErrorMessage] = useState()
+  const [status, employeeMap, employeeSearchMap] = useEmployee(employeeFile)
   const [searchQuery, setSearchQuery] = useState('')
   const [submitSearch, setSubmitSearch] = useState(false)
+
+  function resetForm() {
+    setSearchQuery('')
+    setSubmitSearch(false)
+  }
+
+  function isErrorFound() {
+    return status && status !== 'success'
+  }
+
+  function searchEmployee(query) {
+    return employeeSearchMap.get(query.toLowerCase())
+  }
 
   function handleSelectFile(event) {
     if (event.target.files) {
       var file = event.target.files[0]
       var reader = new FileReader()
-      var tmpDir = event.target.value.split('\\')
-      setFileName(tmpDir[tmpDir.length - 1])
       reader.onload = event => {
         setEmployeeFile(event.target.result)
         setFileLoaded(true)
-        setSearchQuery('')
-        setSubmitSearch(false)
-        setErrorMessage()
-        setErrorFound()
+        resetForm()
       }
       reader.readAsText(file)
     }
   }
 
-  useEffect(() => {
-    if (employeeFile) {
-      var [status, tmpEmployeeMap] = loadEmployeeFromJson(employeeFile)
-      if (status !== 'success') {
-        setErrorFound(true)
-        setErrorMessage(status)
-      } else {
-        setErrorFound(false)
-        var tmpSearchMap = new Map()
-        tmpEmployeeMap.forEach(employee => {
-          tmpSearchMap.set(employee.name.toLowerCase(), employee)
-        })
-        setEmployeeSearchMap(tmpSearchMap)
-      }
-      setEmployeeMap(tmpEmployeeMap)
-    }
-  }, [employeeFile])
+  function handleSubmitForm(e) {
+    setSearchQuery(e.target[0].value)
+    setSubmitSearch(true)
+  }
 
   return (
     <div className="flex flex-col items-center pt-10 h-screen relative bg-green-100 text-green-900">
       <header className="mb-3 text-xl font-semibold">
-        Employee Search
+        {`Employee Search`}
       </header>
-      <form onSubmit={(e) => {
-        e.preventDefault()
-        setSubmitSearch(true)
-      }}>
-        <input
-          className="
-            rounded-full px-3 mb-3 
-          bg-green-50
-            border-2 border-green-700 
-            focus:outline-none focus:ring focus:ring-green-300
-            placeholder:italic"
-          placeholder="Employee Name"
-          onChange={(e) => { setSearchQuery(e.target.value.toLowerCase()); setSubmitSearch(false) }}
-        />
-        <button type="submit"/>
-      </form>
-      {/* error result */}
-      {errorFound &&
-        <div className="text-center text-red-500">
-          <p>
-            {`Unable to process employee hierarchy`}
-          </p>
-          <p>
-            {errorMessage}
-          </p>
-          {Array.from(employeeMap.values()).map((employee) => (
-            <p className="text-lg font-semibold">
-              {employee.name}
-            </p>
-          ))}
-        </div>
-      }
-      {!errorFound && fileLoaded && 
-        <div className="text-center text-green-500">
-          <p>
-            {'Employee file successfully loaded'}
-          </p>
-        </div>
+      <SearchBar disabled={isErrorFound()} onSubmit={handleSubmitForm} />
+      {/* error on loading file */}
+      {fileLoaded && 
+        (
+          isErrorFound() 
+          ?
+            <LoadFailedMessage employeeMap={employeeMap} message={status}/>
+          :
+            <LoadSuccessMessage/>
+        )
       }
       {/* found result */}
-      {employeeSearchMap && (searchQuery !== '') &&
-        <div>
-          {employeeSearchMap.get(searchQuery) 
-            ?
-            <div>
-              <p>
-                {`Found : ${employeeSearchMap.get(searchQuery)?.name}`}
-              </p>
-              <p>
-                {`Managed by : ${employeeSearchMap.get(searchQuery)?.getAllManager()}`}
-              </p>
-              <p>
-                {`Total report(s) : ${employeeSearchMap.get(searchQuery)?.getTotalReport()}`}
-              </p>
-            </div>
-            :
-            <div>
-              { submitSearch &&
-                <p>
-                  {`Employee not found`}
-                </p>
-              }
-            </div>
-          }
-        </div>
+      {employeeSearchMap && (searchQuery !== '') && submitSearch &&
+        <SearchResult employee={searchEmployee(searchQuery)} />
       }
-      <label className="
-        absolute bottom-6 py-1 px-3 rounded-lg
-        bg-green-50 border-2 border-green-700
-        hover:bg-green-200
-        focus:outline-none focus:ring focus:ring-green-300
-        cursor-pointer
-      ">
-        {fileLoaded ? fileName : 'Upload Employee File'}
-        <input onChange={(e) => { handleSelectFile(e) }} type="file" hidden />
-      </label>
+      <FileInput label="Upload Employee File" onChange={handleSelectFile} />
     </div>
   );
+}
+
+function LoadSuccessMessage() {
+  return (
+    <div className="text-center text-green-500">
+      <p>
+        {'Employee file successfully loaded'}
+      </p>
+    </div>
+  )
+}
+
+function LoadFailedMessage({ message, employeeMap }) {
+  return (
+    <div className="text-center text-red-500">
+      <p>
+        {`Unable to process employee hierarchy`}
+      </p>
+      <p>
+        {message}
+      </p>
+      {Array.from(employeeMap.values()).map((employee) => (
+        <p key={employee.name} className="text-lg font-semibold">
+          {employee.name}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+function SearchResult({ employee }) {
+  return (
+    <div>
+      {employee
+        ?
+        <div>
+          <p>
+            {`Found : ${employee.name}`}
+          </p>
+          <p>
+            {`Managed by : ${employee.getAllManager()}`}
+          </p>
+          <p>
+            {`Total report(s) : ${employee.getTotalReport()}`}
+          </p>
+        </div>
+        :
+        <div>
+          <p>
+            {`Employee not found`}
+          </p>
+        </div>
+      }
+    </div>
+  )
 }
 
 export default App;
