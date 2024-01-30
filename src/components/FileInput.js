@@ -8,11 +8,13 @@ export default function FileInput({label='', onChange=()=>{}}) {
     setFileLoaded(true)
     var tmpDir = e.target.value.split('\\')
     setFileName(tmpDir[tmpDir.length - 1])
-    onChange(e)
+    onChange(e.target.files)
   }
 
   return (
-    <label className="
+    <label 
+      data-testid={'fileInput'}
+      className="
         absolute bottom-6 py-1 px-3 rounded-lg
         bg-green-50 border-2 border-green-700
         hover:bg-green-200
@@ -20,7 +22,7 @@ export default function FileInput({label='', onChange=()=>{}}) {
         cursor-pointer
       ">
       {fileLoaded ? fileName : label}
-      <input onChange={(e) => { handleFileChange(e) }} type="file" hidden />
+      <input data-testid={'fileInput-input'} onChange={(e) => { handleFileChange(e) }} type="file" hidden />
     </label>
   )
 }

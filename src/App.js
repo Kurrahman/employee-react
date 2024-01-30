@@ -23,9 +23,9 @@ function App() {
     return employeeSearchMap.get(query.toLowerCase())
   }
 
-  function handleSelectFile(event) {
-    if (event.target.files) {
-      var file = event.target.files[0]
+  function handleSelectFile(files) {
+    if (files) {
+      var file = files[0]
       var reader = new FileReader()
       reader.onload = event => {
         setEmployeeFile(event.target.result)
@@ -36,8 +36,8 @@ function App() {
     }
   }
 
-  function handleSubmitForm(e) {
-    setSearchQuery(e.target[0].value)
+  function handleSubmitForm(s) {
+    setSearchQuery(s)
     setSubmitSearch(true)
   }
 
@@ -46,7 +46,7 @@ function App() {
       <header className="mb-3 text-xl font-semibold">
         {`Employee Search`}
       </header>
-      <SearchBar disabled={isErrorFound()} onSubmit={handleSubmitForm} />
+      <SearchBar disabled={isErrorFound()} placeholder="Employee Name" onSubmit={handleSubmitForm} />
       {/* error on loading file */}
       {fileLoaded && 
         (
